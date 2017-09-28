@@ -22,7 +22,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           2.4.3
+// @version           2.4.6
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -272,7 +272,7 @@
 
         // console.log("所有元素：",elements);
         var exempt = Array.prototype.slice.call(document.querySelectorAll("[class*='rwl-exempt'],[class*='rwl-exempt'] *"));
-        // console.log("排除1：",exempt);
+        console.log("排除1：",exempt);
 
         // var exemptArr = Array.from(exempt);
         var exemptSet = new Set(exempt);
@@ -293,7 +293,10 @@
         node.id = "rwl-iqxin";
         node.className = "rwl-exempt";
         // node.innerHTML = '<label><input type="checkbox" name="" id="black_node">黑名单</label><button id="delete">delete</btton>';
-        node.innerHTML = '<label>限制解除 <input type="checkbox" name="" id="black_node"></label>';
+        node.innerHTML = '' +
+        '<img class="rwl-set" style="width: 15px;margin: 0 2px -3px -10px;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACSklEQVR4nGNkIAPYy8tzhLS2f0cWy42JYiTHLLI0TV6y7D82cXIcwUSqhr658/bhkaaeAyYvWfZ/0qLFW9HVs7JzOOLR8w+bObhCjIEBh4vxaaAEYIsijBCgleW4zGYipIDawEpYVgqnA8jNSqSAY28fP8PpgIEALORoUlWQwyp++8Ejks0iKQQYGRlxWs7AgNth+ABKCLRPmhqHT7GKvCwDAwMDQ11gxMRTr58UIMtNmzbjuZKejoSqghyhkGBkYGD4j8xhYGAgnANgvmvyj5RGT0gwYC4mU9y4bkUPAwPh6IAleEZisx7MAR42Nnhzyo4jR/4T4wAYICoNIFlOUH1dULglAwMDg7S4GPUcgAQIhtapV09PMDAwMHBxchBlIMvHj++JUEZ86tbnlxdgYGBg+PL1KwMxZhMVAmcuXmRgYEDELz7QuXXpewYGBoYbd+4QYzQDU012NuOmxvZJRKkmDIguyjc2dfrWZGczomhomToVrw9N9PUZGBiw54T1O3emc3Jzz2BgQIQYLlCTnQ3Xj2EQPkcYaGszsLDgL71JsZyBgcRccOHqVbwWELIcGyCrMiLHIlxgwKtjFAeYSkkJD6gD/Kur39DaQjNxmWScDkBPodQGWxrbU0+9fDIXpwNwOWJTQ8eSzY3tC4m1aHNje8mmhvY+FLGG9qQTr57MQVeL08cW4jJmJ14+OYUuTqiwwuYBczFpvZOvnl7Cpp7kIPdQUWG3KSz8QazlhADJ2XDHnTs/SdVDVQcwMDAwLJs6lR1djNwEDAB1JMSK2b7KxQAAAABJRU5ErkJggg==">'+
+        '<label>' +
+        '限制解除 <input type="checkbox" name="" id="black_node"></label>';
         if(window.self === window.top){
             if (document.querySelector("body")){
                 document.body.appendChild(node);
@@ -311,6 +314,34 @@
                 black_check(black_node.checked);
             },100)
         });
+
+        // 直接编辑代码的功能
+        document.querySelector(".rwl-set").addEventListener("click",function(){
+            var oldEditBox = document.querySelector("#rwl-code");
+            if(oldEditBox){
+                oldEditBox.parentNode.removeChild(oldEditBox);
+                return;
+            }
+            var userSetting = GM_getValue("black_list");
+            var odom = document.createElement("div");
+            odom.id = "rwl-code";
+            odom.style.cssText ="position: fixed;" +
+                "top: 50px;" +
+                "left: 20px;" +
+                "padding: 10px;" +
+                "background: #fff;" +
+                "border-radius: 4px;";
+            var innerH = "" +
+                "<textarea wrap='off' cols='45' rows='20' style='overflow:auto;border-radius:4px;'>" + JSON.stringify(userSetting,false,4) + "</textarea>" + 
+                "<br>" +
+                // "<button id='rwl-reset'>清空设置</button> &nbsp;&nbsp;&nbsp;" +
+                "<button id='rwl-codeboxclose' onclick='this.parentNode.parentNode.removeChild(this.parentNode);' >关闭</button> &nbsp;&nbsp;&nbsp;" +
+                // "<button id='rwl-codeboxsave'>保存</button>" +
+                "<span>--仅供查看--</span>"
+            "";
+            odom.innerHTML = innerH;
+            document.body.appendChild(odom);
+        })
         // 删除本地存的黑名单
         // document.getElementById("delete").addEventListener("click",function(){
         //  GM_deleteValue ("list_user");
@@ -320,7 +351,8 @@
             "#rwl-iqxin{" +
                 "position:fixed;" +
                 "top:0;" +
-                "left:-62px;" +
+                "left:0px;" +
+                "transform:translate(-62px,0);" +
                 "width:58px;" +
                 "height:25px;" +
                 "font-size:12px;" +
@@ -355,7 +387,8 @@
             "}" +
             "#rwl-iqxin.rwl-active-iqxin{" +
                 // "top: 10px;" +
-                "left: 0px;" +
+                "transform:translate(0,0);" +
+                // "left: 0px;" +
                 "opacity: 0.9;" +
                 "height: 32px;" +
                 "line-height: 32px" +
@@ -414,10 +447,10 @@
             setInterval(clearLoop, 30 * 1000);
             setTimeout(clearLoop, 2500);
             window.addEventListener('load', clearLoop, true);
-            clearLoop();
+            // clearLoop();
         }
 
-        // hook addEventListener
+        // hook addEventListener //导致搜索跳转失效的原因
         if(rule.hook_addEventListener) {
             EventTarget.prototype.addEventListener = addEventListener;
             document.addEventListener = addEventListener;
@@ -452,36 +485,38 @@
 
 //--开始执行---------------------------------------------------------------iqxin
     
-    var black_list_version = 1.1;
+    var black_list_version = 1.2;
     var black_list_default = [
-        "b.faloo.com",
-        "book.zhulang.com",
-        "book.zongheng.com",
-        "chokstick.com",
-        "cutelisa55.pixnet.net",
-        "huayu.baidu.com",
-        "imac.hk",
-        "life.tw",
-        "news.missevan.com",
-        "read.qidian.com",
-        "www.15yan.com",
-        "www.17k.com",
-        "www.18183.com",
-        "www.360doc.com",
-        "www.coco01.net",
-        "www.eyu.com",
-        "www.hongshu.com",
-        "www.hongxiu.com",
-        "www.imooc.com",
-        "www.jjwxc.net",
-        "www.readnovel.com",
-        "www.tadu.com",
-        "www.xxsy.net",
-        "www.z3z4.com",
-        "www.zhihu.com",
-        "yuedu.163.com",
-        "book.hjsm.tom.com",
-        "chuangshi.qq.com"
+            "b.faloo.com",
+            "bbs.coocaa.com",
+            "book.hjsm.tom.com",
+            "book.zhulang.com",
+            "book.zongheng.com",
+            "chokstick.com",
+            "chuangshi.qq.com",
+            "cutelisa55.pixnet.net",
+            "huayu.baidu.com",
+            "imac.hk",
+            "life.tw",
+            "luxmuscles.com",
+            "news.missevan.com",
+            "read.qidian.com",
+            "www.15yan.com",
+            "www.17k.com",
+            "www.18183.com",
+            "www.360doc.com",
+            "www.coco01.net",
+            "www.eyu.com",
+            "www.hongshu.com",
+            "www.hongxiu.com",
+            "www.imooc.com",
+            "www.jjwxc.net",
+            "www.readnovel.com",
+            "www.tadu.com",
+            "www.xxsy.net",
+            "www.z3z4.com",
+            "www.zhihu.com",
+            "yuedu.163.com"
     ];
 
     addBtn();   //页面左上角按钮，不想要按钮可以把这行注释掉
