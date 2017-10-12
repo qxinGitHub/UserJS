@@ -3,10 +3,10 @@
 
 // @name              网页限制解除(改)
 // @name:en           Remove web limits
-// @name:zh           网页限制解除
+// @name:zh           网页限制解除(改)
 // @name:ja           ウェブの規制緩和
 
-// @author            Cat73&iqxin(修改)
+// @author            Cat73 & iqxin(修改)
 // @contributor       iqxin
 
 // @description       通杀大部分网站，可以解除禁止复制、剪切、选择文本、右键菜单的限制。原作者cat73，因为和搜索跳转脚本冲突，遂进行了改动，改为黑名单制。
@@ -22,7 +22,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           2.4.7
+// @version           2.4.8
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -39,174 +39,8 @@
 // ==/UserScript==
 (function() {
     'use strict';
-
-
-
-//-------------------------------------------------------------------添加 start
-    function test(){
-        var black_list_user = GM_getValue("list_user");
-        console.log(black_list_user);
-    }
-
-  // 检查, 此處應將數組改為 Set 結構(2017-05-16，因為懶，所以不想動)
-    function black_check(bool){
-        var hostname = window.location.hostname;
-        var check = check_black_list(list,hostname);
-
-        // console.log("check: ",check);
-        // console.log(list);
-
-        if (bool && !check) {
-            list = list.concat(hostname);
-            // console.log("选中 不在黑名单, 增加",hostname,list);
-        }else if(!bool && check){
-            // console.log(check-1);
-            list.splice(check-1,1);
-            // console.log("未选中 在黑名单， 刪除",list);
-        }else{
-            // console.log("返回false");
-            return false;
-        }
-
-        // console.log(list);
-        saveData(list);
-        // test();
-        // 刷新页面
-        // window.location.reload(true);
-        setTimeout(function(){
-            window.location.reload(true);
-            console.log("loading");
-        },400);
-    }
-
-    function saveData(list,version){
-        // console.log(list);
-        var userData = {
-            "status":1,
-            "version":black_list_version,
-            "message":"0.1測試版，2017-05-16發佈",
-            "data":list.sort()
-        };
-        GM_setValue("black_list",userData);
-        // console.log(userData);
-        console.log(GM_getValue("black_list"));
-        return userData;
-    }
-
-    // 數據庫版本升級，鑒於之前2.1.x版本只是隨手寫的，有太多的問題，保存數據未考慮周全，遂再次改動
-    function versionUp(){
-        console.log("这里是versionUp");
-        var black_list;
-        var black_list_user = GM_getValue("list_user");
-        // var version2 = GM_getValue("black_list");
-        // console.log(black_list_user);
-        if(black_list_user){
-            // 存在版本一，意味著從舊版升到新版
-            black_list_user = black_list_user.split("|");
-            black_list = Array.from( new Set(black_list_default.concat(black_list_user)));
-            console.log(black_list);
-
-            // 刪除舊版本
-            GM_deleteValue("list_user");
-        } else {
-            // 不存在版本一，也不存在版本二， 意味著新用戶
-            black_list = black_list_default;
-        }
-
-        // black_list.concat
-
-        // 保存數據
-        return saveData(black_list);
-    }
-
-    // 获取黑名单
-    function get_black_list(){
-
-        var black_list = GM_getValue("black_list");
-
-        if(!black_list){
-            black_list = versionUp();
-            // black_list = GM_getValue("black_list");
-        }
-
-        // 因为版本错误导致本地数据为空(保存为字符串"[]")
-        console.log("数据长度： ",black_list.data.length,black_list.data);
-        if (typeof(black_list.data) === "string"){
-            console.log("本地数据为空");
-            black_list.data = black_list_default;
-            black_list = saveData(black_list.data);
-            console.log(black_list);
-        }
-
-        // 黑名單數據更新
-        // console.log("本地黑名單版本： ",black_list.version, black_list_version)
-        else if(black_list.version < black_list_version){
-            console.log("低版本，更新數據");
-            // var new_list = Array.from( new Set(black_list_default.concat(black_list.data)));
-            // console.log("数组合并:");
-            // console.log(black_list_default.concat(black_list.data));
-            // console.log("数组去重:");
-            // console.log( new Set(black_list_default.concat(black_list.data)));
-                    // Array.from
-            // console.log(Array.from( new Set(black_list_default.concat(black_list.data))));
-            // var  oset = new Set(black_list_default.concat(black_list.data));
-            // console.log(oset,Array.from(oset));
-
-
-            // console.log("black_list_default: ",black_list_default);
-            // console.log("black_list: ",black_list.data);
-            // console.log("new_list: ",new_list);
-            // 数组去重
-            var new_list = unique(black_list_default.concat(black_list.data));
-            console.log("利用函数去重：",new_list);
-            black_list = saveData(new_list);
-            console.log(black_list);
-        }
-
-        // console.log(black_list);
-        return black_list.data;
-    }
-   // 检查是否存在于黑名单中
-    function check_black_list(list,host){
-        for(let i=0;i<list.length;i++){
-            // if(hostname===list[i]){
-            if(~hostname.indexOf(list[i])){
-                return i+1;  //万一匹配到第一个，返回0
-            }
-        }
-        return false;
-    }
-    // 数组去重
-    function unique(arr) {
-      var ret = []
-
-      for (var i = 0; i < arr.length; i++) {
-        var item = arr[i]
-        if (ret.indexOf(item) === -1) {
-          ret.push(item)
-        }
-      }
-
-      return ret;
-    }
-//---------------------------------------------------------------------添加 end
-  // 域名规则列表
+    // 域名规则列表
     var rules = {
-        black_rule: {
-            name: "black",
-            hook_eventNames: "",
-            unhook_eventNames: ""
-        },
-        default_rule: {
-            name: "default",
-            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart",
-            unhook_eventNames: "keydown|keyup|mousedown|mouseup",
-            dom0: true,
-            hook_addEventListener: true,
-            hook_preventDefault: true,
-            hook_set_returnValue: true,
-            add_css: true
-        },
         rule_plus: {
             name: "default",
             hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousedown|mouseup",
@@ -219,8 +53,7 @@
         }
     };
 
-
-  // 要处理的 event 列表
+    // 要处理的 event 列表
     var hook_eventNames, unhook_eventNames, eventNames;
     // 储存名称
     var storageName = getRandStr('qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM', parseInt(Math.random() * 12 + 8));
@@ -248,7 +81,7 @@
         }
     }
 
-  // 清理循环
+    // 清理循环
     function clearLoop() {
         var elements = getElements();
 
@@ -267,7 +100,7 @@
         }
     }
 
-  // 返回true的函数
+    // 返回true的函数
     function returnTrue(e) {
         return true;
     }
@@ -294,7 +127,7 @@
         return true;
     }
 
-  // 获取随机字符串
+    // 获取随机字符串
     function getRandStr(chs, len) {
         var str = '';
 
@@ -305,7 +138,7 @@
         return str;
     }
 
-  // 获取所有元素 包括document
+    // 获取所有元素 包括document
     function getElements() {
         var elements = Array.prototype.slice.call(document.getElementsByTagName('*'));
         // var elementsArr = Array.from(elements);
@@ -325,10 +158,94 @@
         // console.log("最后结果：",elements);
 
         return elements;
+    };
+
+
+    // 检查
+    function black_check(bool){
+        var hostname = window.location.hostname;
+        var check = check_black_list(list,hostname);
+
+        // console.log("check: ",check);
+        // console.log(list);
+
+        if (bool && !check) {
+            list = list.concat(hostname);
+            // console.log("选中 不在黑名单, 增加",hostname,list);
+        }else if(!bool && check){
+            // console.log(check-1);
+            list.splice(check-1,1);
+            // console.log("未选中 在黑名单， 刪除",list);
+        }else{
+            // console.log("返回false");
+            return false;
+        }
+
+        // console.log(list);
+        saveData(list);
+        // 刷新页面
+        setTimeout(function(){
+            window.location.reload(true);
+            console.log("loading");
+        },300);
     }
 
+    function saveData(list){
+        // console.log(list);
+        var userData = {
+            "status":1,
+            "version":black_list_version,
+            "message":"0.1測試版，2017-05-16發佈",
+            "data":list.sort()
+        };
+        GM_setValue("black_list",userData);
+        console.log(GM_getValue("black_list"));
+        return userData;
+    }
 
-  //添加按钮
+    // 获取黑名单
+    function get_black_list(){
+        var black_list = GM_getValue("black_list");
+        if(!black_list || typeof(black_list.data) === "string"){
+            console.log("未发现旧版本");
+            // 因为版本错误导致本地数据为空(保存为字符串"[]") 2017-10-11 20:58:17
+            console.log("数据长度： ",black_list.data.length,black_list.data);
+            black_list = saveData(black_list_default);
+            console.log(black_list);
+        } else if (black_list.version < black_list_version){
+            console.log("低版本，更新數據",black_list.version, black_list_version);
+            // 数组去重
+            black_list = saveData(unique(black_list_default.concat(black_list.data)));
+            console.log(black_list);
+        }
+        // console.log(black_list);
+        return black_list.data;
+    }
+
+    // 检查是否存在于黑名单中
+    function check_black_list(list,host){
+        for(let i=0;i<list.length;i++){
+            // if(hostname===list[i]){
+            if(~hostname.indexOf(list[i])){
+                return i+1;  //万一匹配到第一个，返回0
+            }
+        }
+        return false;
+    }
+
+    // 数组去重
+    function unique(arr) {
+      var ret = []
+      for (var i = 0; i < arr.length; i++) {
+        var item = arr[i]
+        if (ret.indexOf(item) === -1) {
+          ret.push(item)
+        }
+      }
+      return ret;
+    }
+
+    //添加按钮
     function addBtn(){
         var node = document.createElement("remove-web-limits-iqxin");
         node.id = "rwl-iqxin";
@@ -413,31 +330,18 @@
     function clear(){
         // console.log(hostname);
         switch (hostname){
-            case "www.z3z4.com": clear_z3z4(); break;
-            case "huayu.baidu.com": clear_huayu(); break;
-            // case "news.ifeng.com":
-            // case "www.15yan.com": rule = clear_15yan();break;
+            case "www.z3z4.com": clear_covers(".moviedownaddiv"); break;
+            case "huayu.baidu.com": clear_covers("#jqContextMenu"); break;
         }
         return rules.rule_plus;
     }
-    // www.z3z4.com 再三再四, 文字上面覆盖一层透明的div
-    function clear_z3z4(){
-        var oDiv = document.querySelector(".moviedownaddiv");
-        if (oDiv) {
-            oDiv.parentNode.removeChild(oDiv);
+    // 去除覆盖层
+    function clear_covers(ele){
+        var odiv = document.querySelector(ele);
+        if(odiv){
+            odiv.parentNode.removeChild(odiv);
         }
     }
-    function clear_huayu(){
-        var oDiv = document.querySelector("#jqContextMenu");
-        if (oDiv) {
-            oDiv.parentNode.removeChild(oDiv);
-        }
-    }
-    // www.15yan.com 15言， 监控 mousedown
-    function clear_15yan(){
-        return rules.rule_plus;
-    }
-
 
     // 初始化
     function init() {
@@ -491,8 +395,7 @@
 
     }
 
-//--开始执行---------------------------------------------------------------iqxin
-    
+    //--开始执行---------------------------------------------------------------iqxin
     var black_list_version = 1.3;
     var black_list_default = [
         "b.faloo.com",
