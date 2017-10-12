@@ -22,7 +22,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           2.4.8
+// @version           2.4.8.1
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -171,13 +171,13 @@
 
         if (bool && !check) {
             list = list.concat(hostname);
-            // console.log("选中 不在黑名单, 增加",hostname,list);
+            console.log("选中 不在黑名单, 增加",hostname,list);
         }else if(!bool && check){
             // console.log(check-1);
             list.splice(check-1,1);
-            // console.log("未选中 在黑名单， 刪除",list);
+            console.log("未选中 在黑名单， 刪除",list);
         }else{
-            // console.log("返回false");
+            console.log("返回false");
             return false;
         }
 
@@ -186,12 +186,12 @@
         // 刷新页面
         setTimeout(function(){
             window.location.reload(true);
-            console.log("loading");
+            console.log("刷新页面loading");
         },300);
     }
 
     function saveData(list){
-        // console.log(list);
+        console.log(list);
         var userData = {
             "status":1,
             "version":black_list_version,
@@ -209,7 +209,7 @@
         if(!black_list || typeof(black_list.data) === "string"){
             console.log("未发现旧版本");
             // 因为版本错误导致本地数据为空(保存为字符串"[]") 2017-10-11 20:58:17
-            console.log("数据长度： ",black_list.data.length,black_list.data);
+            // console.log("数据长度： ",black_list.data.length,black_list.data);
             black_list = saveData(black_list_default);
             console.log(black_list);
         } else if (black_list.version < black_list_version){
@@ -278,7 +278,8 @@
             "#rwl-iqxin{" +
                 "position:fixed;" +
                 "top:0;" +
-                "left:-62px;" +
+                "left:0px;" +
+                "transform:translate(-62px,0);" +
                 "width:58px;" +
                 "height:25px;" +
                 "font-size:12px;" +
@@ -314,6 +315,7 @@
             "#rwl-iqxin.rwl-active-iqxin{" +
                 // "top: 10px;" +
                 "left: 0px;" +
+                "transform:translate(0,0);" +
                 "opacity: 0.9;" +
                 "height: 32px;" +
                 "line-height: 32px" +
