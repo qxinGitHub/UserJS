@@ -22,7 +22,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           2.4.8.1
+// @version           2.4.9
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -43,7 +43,7 @@
     var rules = {
         rule_plus: {
             name: "default",
-            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousedown|mouseup",
+            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousedown|mouseup|mousemove",
             unhook_eventNames: "keydown|keyup",
             dom0: true,
             hook_addEventListener: true,
@@ -195,7 +195,7 @@
         var userData = {
             "status":1,
             "version":black_list_version,
-            "message":"0.1測試版，2017-05-16發佈",
+            "message":"0.1測試版，2017-05-16發佈...version_2.4.8黑名单更新至31个",
             "data":list.sort()
         };
         GM_setValue("black_list",userData);
