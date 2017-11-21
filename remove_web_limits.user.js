@@ -22,7 +22,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           2.4.10
+// @version           2.4.11
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -48,6 +48,16 @@
             dom0: true,
             hook_addEventListener: true,
             hook_preventDefault: true,
+            hook_set_returnValue: true,
+            add_css: true
+        },
+        rule_1: {
+            name: "default",
+            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousedown|mouseup|mousemove",
+            unhook_eventNames: "keydown|keyup",
+            dom0: true,
+            hook_addEventListener: true,
+            hook_preventDefault: false,
             hook_set_returnValue: true,
             add_css: true
         }
@@ -342,6 +352,8 @@
         switch (hostname){
             case "www.z3z4.com": clear_covers(".moviedownaddiv"); break;
             case "huayu.baidu.com": clear_covers("#jqContextMenu"); break;
+            case "zhihu.com":
+            case "www.zhihu.com": return rules.rule_1;
         }
         return rules.rule_plus;
     }
