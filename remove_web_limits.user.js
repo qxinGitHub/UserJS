@@ -22,7 +22,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           2.4.11
+// @version           3.0.0
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -31,10 +31,12 @@
 // @compatible        safari 未测试
 
 // @match             *://*/*
+// @connect     eemm.me
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @grant       GM_addStyle
 // @grant       GM_deleteValue
+// @grant       GM_xmlhttpRequest
 // @run-at      document-end
 // ==/UserScript==
 (function() {
@@ -180,8 +182,16 @@
         // console.log(list);
 
         if (bool && !check) {
+            console.log(list);
             list = list.concat(hostname);
             console.log("选中 不在黑名单, 增加",hostname,list);
+
+            console.log("before: ",userData.waitUpload)
+            userData.waitUpload.push(hostname); //准备上传
+            userData.currentURL = window.location.href;
+            console.log("after: ",userData.waitUpload)
+
+            
         }else if(!bool && check){
             // console.log(check-1);
             list.splice(check-1,1);
@@ -197,22 +207,40 @@
         setTimeout(function(){
             window.location.reload(true);
             console.log("刷新页面loading");
-        },300);
+        },350);
     }
 
-    function saveData(list){
-        console.log(list);
-        list = list.filter(function(item){
+
+    function saveData(lists){
+        console.log(lists);
+        lists = lists.filter(function(item){
             return item.length>1;
         })
-        var userData = {
-            "status":1,
-            "version":black_list_version,
-            "message":"0.1測試版，2017-05-16發佈...version_2.4.8黑名单更新至31个",
-            "data":list.sort()
-        };
+
+        // 更新数据
+        userData.data = lists.sort();
+
+        // 将本地黑名单上传
+        console.log("上传",userData.waitUpload)
+        if (userData.waitUpload.length > 0){
+            console.log("开始上传");
+            GM_xmlhttpRequest({
+              method: "POST",
+              // url: "http://127.0.0.1:8000/tool/testajax/",
+              url: "http://eemm.me/tool/rwl_upload/",
+              data: JSON.stringify(userData),
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              onload: function(response) {
+                console.log("上传成功");
+              }
+            });
+            userData.waitUpload = [];
+        }
+
         GM_setValue("black_list",userData);
-        console.log(GM_getValue("black_list"));
+        // console.log(GM_getValue("black_list"));
         return userData;
     }
 
@@ -223,13 +251,31 @@
             console.log("未发现旧版本");
             // 因为版本错误导致本地数据为空(保存为字符串"[]") 2017-10-11 20:58:17
             // console.log("数据长度： ",black_list.data.length,black_list.data);
-            black_list = saveData(black_list_default);
-            console.log(black_list);
-        } else if (black_list.version < black_list_version){
-            console.log("低版本，更新數據",black_list.version, black_list_version);
+            // black_list = saveData(black_list_default);
+            GM_setValue("black_list",userData);
+            black_list = userData;
+            // console.log(black_list);
+        } else if (black_list.version < userData.version){
+            console.log("低版本，更新數據",black_list.version, userData.version);
             // 数组去重
-            black_list = saveData(unique(black_list_default.concat(black_list.data)));
+            black_list = saveData(unique(userData.data.concat(black_list.data)));
             console.log(black_list);
+
+            // 将本地黑名单上传
+            userData.data = black_list.data;
+            GM_xmlhttpRequest({
+              method: "POST",
+              // url: "http://www.eemm.me/rwlajax",
+              url: "http://eemm.me/tool/rwl_upload/",
+              data: JSON.stringify(userData),
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              onload: function(response) {
+                console.log("上传成功");
+              }
+            });
+
         } else {
             // 之前版本可能导致存储空的字符串
             black_list.data = black_list.data.filter(function(item){
@@ -279,7 +325,6 @@
         }
         node.addEventListener("mouseover",function(){
             node.classList.add("rwl-active-iqxin");
-            // list = get_black_list();
         });
         node.addEventListener("mouseleave",function(){
             setTimeout(function(){
@@ -418,40 +463,46 @@
     }
 
     //--开始执行---------------------------------------------------------------iqxin
-    var black_list_version = 1.3;
-    var black_list_default = [
-        "b.faloo.com",
-        "bbs.coocaa.com",
-        "book.hjsm.tom.com",
-        "book.zhulang.com",
-        "book.zongheng.com",
-        "chokstick.com",
-        "chuangshi.qq.com",
-        "city.udn.com",
-        "cutelisa55.pixnet.net",
-        "huayu.baidu.com",
-        "imac.hk",
-        "life.tw",
-        "luxmuscles.com",
-        "news.missevan.com",
-        "read.qidian.com",
-        "www.15yan.com",
-        "www.17k.com",
-        "www.18183.com",
-        "www.360doc.com",
-        "www.coco01.net",
-        "www.eyu.com",
-        "www.hongshu.com",
-        "www.hongxiu.com",
-        "www.imooc.com",
-        "www.jjwxc.net",
-        "www.readnovel.com",
-        "www.tadu.com",
-        "www.xxsy.net",
-        "www.z3z4.com",
-        "www.zhihu.com",
-        "yuedu.163.com"
-    ];
+    var userData = {
+            "status":1,
+            "version":2.0,
+            "message":"0.1測試版，2017-05-16發佈...version_2.4.8黑名单更新至31个",
+            "waitUpload":[],
+            "currentURL":"null",
+            "data": [
+                "b.faloo.com",
+                "bbs.coocaa.com",
+                "book.hjsm.tom.com",
+                "book.zhulang.com",
+                "book.zongheng.com",
+                "chokstick.com",
+                "chuangshi.qq.com",
+                "city.udn.com",
+                "cutelisa55.pixnet.net",
+                "huayu.baidu.com",
+                "imac.hk",
+                "life.tw",
+                "luxmuscles.com",
+                "news.missevan.com",
+                "read.qidian.com",
+                "www.15yan.com",
+                "www.17k.com",
+                "www.18183.com",
+                "www.360doc.com",
+                "www.coco01.net",
+                "www.eyu.com",
+                "www.hongshu.com",
+                "www.hongxiu.com",
+                "www.imooc.com",
+                "www.jjwxc.net",
+                "www.readnovel.com",
+                "www.tadu.com",
+                "www.xxsy.net",
+                "www.z3z4.com",
+                "www.zhihu.com",
+                "yuedu.163.com"
+            ]
+        };
 
     addBtn();   //页面左上角按钮，不想要按钮可以把这行注释掉
     var black_node = document.getElementById("black_node");
