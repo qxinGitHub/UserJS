@@ -23,7 +23,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           3.0.7
+// @version           3.1.0
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -114,6 +114,16 @@
         for(var i in elements) {
           for(var j in eventNames) {
             var name = 'on' + eventNames[j];
+
+            // ;?未解决 
+                // 2018-04-02 elements中会有字符串出现，原版不会，问题不明，根本原因尚未解决
+                // 相关反馈  https://greasyfork.org/zh-CN/forum/discussion/36014
+                // 问题版本号  v3.0.7 
+                // 问题补充   之前可以使用，具体版本未测（2018-04-02 21:27:53），原版可以使用
+            if(Object.prototype.toString.call(elements[i])=="[object String]"){
+                continue;
+            }
+
             if(elements[i][name] !== null && elements[i][name] !== onxxx) {
                 if(unhook_eventNames.indexOf(eventNames[j]) >= 0) {
                     elements[i][storageName + name] = elements[i][name];
