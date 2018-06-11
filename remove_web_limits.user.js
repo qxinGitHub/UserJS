@@ -10,20 +10,20 @@
 // @author            Cat73 & iqxin(修改)
 // @contributor       iqxin
 
-// @description       通杀大部分网站，可以解除禁止复制、剪切、选择文本、右键菜单的限制。原作者cat73，因为和搜索跳转脚本冲突，遂进行了改动，改为黑名单制。
+// @description       通杀大部分网站,可以解除禁止复制、剪切、选择文本、右键菜单的限制。原作者cat73,因为和搜索跳转脚本冲突,遂进行了改动,改为黑名单制。
 // @description:en    Pass to kill most of the site, you can lift the restrictions prohibited to copy, cut, select the text, right-click menu.revised version
-// @description:zh    通杀大部分网站，可以解除禁止复制、剪切、选择文本、右键菜单的限制。原作者cat73，因为和搜索跳转脚本冲突，遂进行了改动，改为黑名单制。
-// @description:zh-CN 通杀大部分网站，可以解除禁止复制、剪切、选择文本、右键菜单的限制。原作者cat73，因为和搜索跳转脚本冲突，遂进行了改动，改为黑名单制。
-// @description:zh-TW 通殺大部分網站，可以解除禁止復制、剪切、選擇文本、右鍵菜單的限制。
+// @description:zh    通杀大部分网站,可以解除禁止复制、剪切、选择文本、右键菜单的限制。原作者cat73,因为和搜索跳转脚本冲突,遂进行了改动,改为黑名单制。
+// @description:zh-CN 通杀大部分网站,可以解除禁止复制、剪切、选择文本、右键菜单的限制。原作者cat73,因为和搜索跳转脚本冲突,遂进行了改动,改为黑名单制。
+// @description:zh-TW 通殺大部分網站,可以解除禁止復制、剪切、選擇文本、右鍵菜單的限制。
 // @description:ja    サイトのほとんどを殺すために渡し、あなたは、コピー切り取り、テキスト、右クリックメニューを選択することは禁止の制限を解除することができます。
 
-// @description       原作者https://www.github.com/Cat7373/，因为和搜索跳转脚本冲突，遂进行了改动
+// @description       原作者https://www.github.com/Cat7373/,因为和搜索跳转脚本冲突,遂进行了改动
 // @homepageURL       https://cat7373.github.io/remove-web-limits/
 // @supportURL        https://greasyfork.org/zh-CN/scripts/28497
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           3.2.3
+// @version           4.0.0
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -42,335 +42,185 @@
 // @grant       GM_addStyle
 // @grant       GM_deleteValue
 // @grant       GM_xmlhttpRequest
-// @run-at      document-end
+// @grant       GM_setClipboard
+// @run-at      document-start
 // ==/UserScript==
 (function() {
     'use strict';
-    // 域名规则列表
-    var rules = {
-        rule_plus: {
-            name: "default",
-            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousemove|beforeunload",
-            unhook_eventNames: "mousedown|mouseup|keydown|keyup",
-            dom0: true,
-            hook_addEventListener: true,
-            hook_preventDefault: true,
-            hook_set_returnValue: true,
-            add_css: true
-        },
-        rule_1: {
-            name: "default",
-            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousedown|mouseup|mousemove|beforeunload",
-            unhook_eventNames: "keydown|keyup",
-            dom0: true,
-            hook_addEventListener: true,
-            hook_preventDefault: false,
-            hook_set_returnValue: true,
-            add_css: true
-        },
-        rule_zhihu: {
-            name: "default",
-            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousemove",
-            unhook_eventNames: "keydown|keyup",
-            dom0: true,
-            hook_addEventListener: true,
-            hook_preventDefault: true,
-            hook_set_returnValue: true,
-            add_css: true
-        }
-    };
 
+    var settingData = {
+        "status":1,
+        "version" : 0.1,
+        "message" : "啦啦啦,啦啦啦,我是卖报的小行家",
+        // "position" : ["0","0","auto"],
+        "positionTop":"0",
+        "positionLeft":"0",
+        "positionRight":"auto",
+        "addBtn" : true,
+        "connectToTheServer" : true,
+        "waitUpload":[],
+        "currentURL":"null",
+        // 域名规则列表
+        "rules" : {
+            "rule_def": {
+                "name": "default",
+                "hook_eventNames": "contextmenu|select|selectstart|copy|cut|dragstart|mousemove|beforeunload",
+                "unhook_eventNames": "mousedown|mouseup|keydown|keyup",
+                "dom0": true,
+                "hook_addEventListener": true,
+                "hook_preventDefault": true,
+                "hook_set_returnValue": true,
+                "add_css": true
+            },
+            "rule_plus": {
+                "name": "default",
+                "hook_eventNames": "contextmenu|select|selectstart|copy|cut|dragstart|mousedown|mouseup|mousemove|beforeunload",
+                "unhook_eventNames": "keydown|keyup",
+                "dom0": true,
+                "hook_addEventListener": true,
+                "hook_preventDefault": true,
+                "hook_set_returnValue": true,
+                "add_css": true
+            },
+            "rule_zhihu": {
+                "name": "default",
+                "hook_eventNames": "contextmenu|select|selectstart|copy|cut|dragstart|mousemove",
+                "unhook_eventNames": "keydown|keyup",
+                "dom0": true,
+                "hook_addEventListener": true,
+                "hook_preventDefault": true,
+                "hook_set_returnValue": true,
+                "add_css": true
+            }
+        },
+        "data": [
+            "b.faloo.com",
+            "bbs.coocaa.com",
+            "book.hjsm.tom.com",
+            "book.zhulang.com",
+            "book.zongheng.com",
+            "chokstick.com",
+            "chuangshi.qq.com",
+            "city.udn.com",
+            "cutelisa55.pixnet.net",
+            "huayu.baidu.com",
+            "imac.hk",
+            "life.tw",
+            "luxmuscles.com",
+            "news.missevan.com",
+            "read.qidian.com",
+            "www.15yan.com",
+            "www.17k.com",
+            "www.18183.com",
+            "www.360doc.com",
+            "www.coco01.net",
+            "www.eyu.com",
+            "www.hongshu.com",
+            "www.hongxiu.com",
+            "www.imooc.com",
+            "www.jjwxc.net",
+            "www.readnovel.com",
+            "www.tadu.com",
+            "www.xxsy.net",
+            "www.z3z4.com",
+            "www.zhihu.com",
+            "yuedu.163.com",
+            "www.ppkao.com",
+            "movie.douban.com",
+            "www.ruiwen.com",
+            "vipreader.qidian.com",
+            "www.pigai.org",
+            "www.shangc.net",
+            "www.sdifen.com"
+        ]
+    }
+
+    var rwl_userData = null;
+    var hostname = window.location.hostname;
+    var btn_node = null;   
+    var rule = null;
+    var list = null;
+    
+    // 储存名称
+    var storageName = "iqxinStorageName";
     // 要处理的 event 列表
     var hook_eventNames, unhook_eventNames, eventNames;
-    // 储存名称
-    var storageName = getRandStr('qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM', parseInt(Math.random() * 12 + 8));
     // 储存被 Hook 的函数
     var EventTarget_addEventListener = EventTarget.prototype.addEventListener;
     var document_addEventListener = document.addEventListener;
     var Event_preventDefault = Event.prototype.preventDefault;
 
-    // Hook addEventListener proc
-    function addEventListener(type, func, useCapture) {
-        var _addEventListener = this === document ? document_addEventListener : EventTarget_addEventListener;
-        if(hook_eventNames.indexOf(type) >= 0) {
-            _addEventListener.apply(this, [type, returnTrue, useCapture]);
-        } else if(unhook_eventNames.indexOf(type) >= 0) {
-            var funcsName = storageName + type + (useCapture ? 't' : 'f');
 
-            if(this[funcsName] === undefined) {
-                this[funcsName] = [];
-                _addEventListener.apply(this, [type, useCapture ? unhook_t : unhook_f, useCapture]);
+    // 查看本地是否存在旧数据
+    rwl_userData = GM_getValue("rwl_userData");
+    if(!rwl_userData){
+        rwl_userData = settingData
+        // GM_setValue("rwl_userData",rwl_userData);
+    }
+
+    version_up_3_to_4();
+
+    // 获取黑名单网站
+    list = get_black_list();
+
+    // 添加按钮
+    if(rwl_userData.addBtn){
+        addBtn();  // 添加
+        btn_node = document.getElementById("black_node");
+        setTimeout(function(){
+            try {
+                dragBtn()
+            } catch (e) {
+                console.error("dragBtn函数 报错");
             }
-
-            this[funcsName].push(func);
-        } else {
-            _addEventListener.apply(this, arguments);
-        }
+        },1000)
+        // dragBtn();  // 增加拖动事件
     }
 
-    // 清理循环
-    function clearLoop() {
-        rule = clear() // 对于动态生成的节点，随时检测
-        var elements = getElements();
-
-        for(var i in elements) {
-          for(var j in eventNames) {
-            var name = 'on' + eventNames[j];
-
-            // ;?未解决
-                // 2018-04-02 elements中会有字符串出现，原版不会，问题不明，根本原因尚未解决
-                // 相关反馈  https://greasyfork.org/zh-CN/forum/discussion/36014
-                // 问题版本号  v3.0.7
-                // 问题补充   之前可以使用，具体版本未测（2018-04-02 21:27:53），原版可以使用
-            if(Object.prototype.toString.call(elements[i])=="[object String]"){
-                continue;
-            }
-
-            if(elements[i][name] !== null && elements[i][name] !== onxxx) {
-                if(unhook_eventNames.indexOf(eventNames[j]) >= 0) {
-                    elements[i][storageName + name] = elements[i][name];
-                    elements[i][name] = onxxx;
-              } else {
-                    elements[i][name] = null;
-              }
-            }
-          }
-        }
-    }
-
-    // 返回true的函数
-    function returnTrue(e) {
-        return true;
-    }
-    function unhook_t(e) {
-        return unhook(e, this, storageName + e.type + 't');
-    }
-    function unhook_f(e) {
-        return unhook(e, this, storageName + e.type + 'f');
-    }
-    function unhook(e, self, funcsName) {
-        var list = self[funcsName];
-        for(var i in list) {
-            list[i](e);
-        }
-
-        e.returnValue = true;
-        return true;
-    }
-    function onxxx(e) {
-        var name = storageName + 'on' + e.type;
-        this[name](e);
-
-        e.returnValue = true;
-        return true;
-    }
-
-    // 获取随机字符串
-    function getRandStr(chs, len) {
-        var str = '';
-
-        while(len--) {
-            str += chs[parseInt(Math.random() * chs.length)];
-        }
-
-        return str;
-    }
-
-    // 获取所有元素 包括document
-    function getElements() {
-        var elements = Array.prototype.slice.call(document.getElementsByTagName('*'));
-        // var elementsArr = Array.from(elements);
-       // var elementsSet = new Set(elements);
-
-        // console.log("所有元素：",elements);
-        //var exempt = Array.prototype.slice.call(document.querySelectorAll("[class*='rwl-exempt'],[class*='rwl-exempt'] *"));
-        // console.log("排除1：",exempt);
-
-        // var exemptArr = Array.from(exempt);
-        //var exemptSet = new Set(exempt);
-
-        // console.log("排除元素；",exempt);
-
-       // elements = Array.from(new Set(elements.concat(exempt).filter(v => !elementsSet.has(v) || !exemptSet.has(v))))
-        elements.push(document);
-        // console.log("最后结果：",elements);
-
-        return elements;
-    };
-
-
-    // 检查
-    function black_check(bool){
-        var hostname = window.location.hostname;
-        var check = check_black_list(list,hostname);
-
-        // console.log("check: ",check);
-        // console.log(list);
-
-        if (bool && !check) {
-            console.log(list);
-            list = list.concat(hostname);
-            console.log("选中 不在黑名单, 增加",hostname,list);
-
-            console.log("before: ",userData.waitUpload)
-            userData.waitUpload.push(hostname); //准备上传
-            userData.currentURL = window.location.href;
-            console.log("after: ",userData.waitUpload)
-
-            saveData(list);
+    // 检查是否在黑名单中
+    if(check_black_list(list,hostname)){
+        try {
+            btn_node.checked = true;
+        } catch (e) {
+            console.error("脚本rwl-错误：\n btn_node : %s\n%s\n脚本rwl-错误位置： btn_node.checked = true;",btn_node,e);
+        } finally {
             init();
-
-        }else if(!bool && check){
-            // console.log(check-1);
-            list.splice(check-1,1);
-            console.log("未选中 在黑名单， 刪除",list);
-
-            saveData(list);
-            // 刷新页面
-            setTimeout(function(){
-                window.location.reload(true);
-                console.log("刷新页面loading");
-            },350);
-        }else{
-            console.log("返回false");
-            return false;
         }
-
-        // console.log(list);
-        // saveData(list);
-        // 刷新页面
-        // setTimeout(function(){
-        //     window.location.reload(true);
-        //     console.log("刷新页面loading");
-        // },350);
     }
 
 
-    function saveData(lists){
-        console.log(lists);
-        lists = lists.filter(function(item){
-            return item.length>1;
-        })
+    // // ------------------------------函数 func
 
-        // 更新数据
-        userData.data = lists.sort();
-
-        // 将本地黑名单上传
-        console.log("上传",userData.waitUpload)
-        if (userData.waitUpload.length > 0){
-            console.log("开始上传");
-            GM_xmlhttpRequest({
-              method: "POST",
-              // url: "http://127.0.0.1:8000/tool/testajax/",
-              url: "http://eemm.me/tool/rwl_upload/",
-              data: JSON.stringify(userData),
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-              },
-              onload: function(response) {
-                console.log("上传成功");
-              }
-            });
-            userData.waitUpload = [];
-        }
-
-        GM_setValue("black_list",userData);
-        // console.log(GM_getValue("black_list"));
-        return userData;
-    }
-
-    // 获取黑名单
-    function get_black_list(){
-        var black_list = GM_getValue("black_list");
-        if(!black_list || typeof(black_list.data) === "string"){
-            console.log("未发现旧版本");
-            // 因为版本错误导致本地数据为空(保存为字符串"[]") 2017-10-11 20:58:17
-            // console.log("数据长度： ",black_list.data.length,black_list.data);
-            // black_list = saveData(black_list_default);
-            GM_setValue("black_list",userData);
-            black_list = userData;
-            // console.log(black_list);
-        } else if (black_list.version < userData.version){
-            console.log("低版本，更新數據",black_list.version, userData.version);
-            // 数组去重
-            black_list = saveData(unique(userData.data.concat(black_list.data)));
-            console.log(black_list);
-
-            // 将本地黑名单上传
-            userData.data = black_list.data;
-            GM_xmlhttpRequest({
-              method: "POST",
-              // url: "http://www.eemm.me/rwlajax",
-              url: "http://eemm.me/tool/rwl_upload/",
-              data: JSON.stringify(userData),
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-              },
-              onload: function(response) {
-                console.log("上传成功");
-              }
-            });
-
-        } else {
-            // 之前版本可能导致存储空的字符串
-            black_list.data = black_list.data.filter(function(item){
-                        return item.length>1;
-                    })
-        }
-        // console.log(black_list);
-        return black_list.data;
-    }
-
-    // 检查是否存在于黑名单中
-    function check_black_list(list,host){
-        for(let i=0;i<list.length;i++){
-            // if(hostname===list[i]){
-            if(~hostname.indexOf(list[i])){
-                return i+1;  //万一匹配到第一个，返回0
-            }
-        }
-        return false;
-    }
-
-    // 数组去重
-    function unique(arr) {
-      var ret = []
-      for (var i = 0; i < arr.length; i++) {
-        var item = arr[i]
-        if (ret.indexOf(item) === -1) {
-          ret.push(item)
-        }
-      }
-      return ret;
-    }
-
-    //添加按钮
+    //添加按钮 func
     function addBtn(){
         var node = document.createElement("remove-web-limits-iqxin");
         node.id = "rwl-iqxin";
         node.className = "rwl-exempt";
 
-        // 再次打开窗口小于之前窗口的情况
+        // 再次打开窗口小于之前窗口的情况,导致按钮出现在可视窗口之外
         var screenClientHeight = document.documentElement.clientHeight;
         var tempHeight;
-        if (rwl_userdata.top>screenClientHeight){
-                tempHeight  = screenClientHeight -40;
+        if (rwl_userData.positionTop>screenClientHeight){
+            tempHeight  = screenClientHeight -40;
         } else{
-            tempHeight = rwl_userdata.top;
+            tempHeight = rwl_userData.positionTop;
         }
         // 改变窗口大小的情况
         window.onresize=function(){  
-                var screenClientHeight = document.documentElement.clientHeight;
-                var tempHeight;
-                if (rwl_userdata.top>screenClientHeight){
-                        tempHeight  = screenClientHeight -40;
-                } else{
-                    tempHeight = rwl_userdata.top;
-                }
-                node.style.top =  tempHeight + "px";
-            }  
+            var screenClientHeight = document.documentElement.clientHeight;
+            var tempHeight;
 
-        node.style.cssText = "top:"+tempHeight+"px;left:"+rwl_userdata.left+"px;right:"+rwl_userdata.right+"px;";
+            if (rwl_userData.positionTop>screenClientHeight){
+                    tempHeight  = screenClientHeight -40;
+            } else{
+                tempHeight = rwl_userData.positionTop;
+            }
+
+            node.style.top =  tempHeight + "px";
+        }
+
+        tempHeight = tempHeight<0?0:tempHeight
+        node.style.cssText = "top:"+tempHeight+"px;left:"+rwl_userData.positionLeft+"px;right:"+rwl_userData.positionRight+"px;";
         // node.innerHTML = '<label><input type="checkbox" name="" id="black_node">黑名单</label><button id="delete">delete</btton>';
         // node.innerHTML = '<label>限制解除 <input type="checkbox" name="" id="black_node"></label>';
         node.innerHTML = '<lalala style="cursor:move;">限制解除</lalala> <input type="checkbox" name="" id="black_node" >';
@@ -447,48 +297,55 @@
                 "padding:0;" +
                 "font-weight:500;" +
             "}"
-        );
+        )
     };
 
-    // 部分网站采用了其他的防复制手段
-    function clear(){
-        // console.log(hostname);
-        console.log(hostname);
-        switch (hostname){
-            case "www.z3z4.com": clear_covers(".moviedownaddiv"); break;
-            case "huayu.baidu.com": clear_covers("#jqContextMenu"); break;
-            case "zhihu.com":
-            case "www.zhihu.com": return rules.rule_zhihu; break;
-            case "t.bilibili.com": clear_link_bilibili(); break;
-            // case "www.w3schools.com":
-            // case "www.ltaaa.com": rule.add_css = false; break;  //会导致整个页面变蓝
-        }
-        return rules.rule_plus;
-    }
-    // 去除覆盖层
-    function clear_covers(ele){
-        var odiv = document.querySelector(ele);
-        if(odiv){
-            odiv.parentNode.removeChild(odiv);
-        }
-    }
-    function clear_link_bilibili(){
-        var odiv = document.querySelector(".description");
-        // console.log(odiv);
-        if(odiv){
-            var tDiv = odiv.querySelector(".content-ellipsis");
-            var aDiv = odiv.querySelector("a");
-             // console.log(tDiv);
-             // console.log(aDiv);
-             odiv.appendChild(tDiv);
-        }
+    // 增加拖动事件 func
+    function dragBtn(){
+        var rwl_node = document.querySelector("#rwl-iqxin");
+        // console.log(rwl_node);
+        rwl_node.addEventListener("mousedown",function(event){
+            rwl_node.style.transition = "null";
+            var disX = event.clientX - rwl_node.offsetLeft;
+            var disY = event.clientY - rwl_node.offsetTop;
+
+            var move = function(event){
+                rwl_node.style.left = event.clientX - disX + "px" ;
+                rwl_node.style.top  = event.clientY - disY + "px" ;
+            }
+
+            document.addEventListener("mousemove",move);
+            document.addEventListener("mouseup",function(){
+                rwl_node.style.transition = "0.3s";
+                document.removeEventListener("mousemove",move);
+                // 此函数内所有的注释语句都是有用的
+                    // 开启后,可拖动到屏幕右侧,但尚未添加css
+                    // 在上面添加 rwl-active-iqxin 的地方加上判断左右,在加上相应的css即可
+                    // 懒 2018-04-18 21:51:32
+                // var bodyWidth = document.body.clientWidth;
+                var rwl_nodeWidth = rwl_node.offsetLeft + rwl_node.offsetWidth/2;
+                // if(rwl_nodeWidth > bodyWidth/2){
+                //     rwl_node.style.left = "auto";
+                //     rwl_node.style.right = 0;
+                //     rwl_userData.positionLeft = "auto";
+                //     rwl_userData.positionRight = "0";
+                // } else {
+                    rwl_node.style.right = rwl_userData.positionRight = "auto";
+                    rwl_node.style.left = rwl_userData.positionLeft =  0;
+                // }
+                rwl_userData.positionTop = rwl_node.offsetTop;
+                // console.log(rwl_userData);
+                GM_setValue("rwl_userData",rwl_userData);
+
+            })
+        })
     }
 
-    // 初始化
+    // 初始化 init func
     function init() {
-        console.log("使用规则-------------------------------------------------iqxin");
+        console.log("脚本-rwl-复制限制解除(改)------使用规则-----------------iqxin");
         // 针对个别网站采取不同的策略
-        var rule = clear();
+        rule = clear();
         // 设置 event 列表
         hook_eventNames = rule.hook_eventNames.split("|");
         // TODO Allowed to return value
@@ -497,8 +354,8 @@
 
         // 调用清理 DOM0 event 方法的循环
         if(rule.dom0) {
-            setInterval(clearLoop, 30 * 1000);
-            setTimeout(clearLoop, 2500);
+            setInterval(clearLoop, 5 * 1000);
+            setTimeout(clearLoop, 1500);
             window.addEventListener('load', clearLoop, true);
             clearLoop();
         }
@@ -527,125 +384,252 @@
             });
         }
 
-    // console.debug('url: ' + url, 'storageName：' + storageName, 'rule: ' + rule.name);
-
-    // 添加CSS
+        // 添加CSS     // console.debug('url: ' + url, 'storageName：' + storageName, 'rule: ' + rule.name);
         if(rule.add_css) {
             GM_addStyle('html, :not([class*="rwl-exempt"]) {-webkit-user-select:text!important; -moz-user-select:text!important;} :not([class*="rwl-exempt"]) ::selection {color:#fff; background:#3390FF; !important;}');
         } //else {
             //GM_addStyle('html, :not([class*="rwl-exempt"]) {-webkit-user-select:text!important; -moz-user-select:text!important;}');
         //}
-
     }
 
-    //--开始执行---------------------------------------------------------------iqxin
-    var userData = {
-            "status":1,
-            "version":2.0,
-            "message":"0.1測試版，2017-05-16發佈...version_2.4.8黑名单更新至31个",
-            "waitUpload":[],
-            "currentURL":"null",
-            "data": [
-                "b.faloo.com",
-                "bbs.coocaa.com",
-                "book.hjsm.tom.com",
-                "book.zhulang.com",
-                "book.zongheng.com",
-                "chokstick.com",
-                "chuangshi.qq.com",
-                "city.udn.com",
-                "cutelisa55.pixnet.net",
-                "huayu.baidu.com",
-                "imac.hk",
-                "life.tw",
-                "luxmuscles.com",
-                "news.missevan.com",
-                "read.qidian.com",
-                "www.15yan.com",
-                "www.17k.com",
-                "www.18183.com",
-                "www.360doc.com",
-                "www.coco01.net",
-                "www.eyu.com",
-                "www.hongshu.com",
-                "www.hongxiu.com",
-                "www.imooc.com",
-                "www.jjwxc.net",
-                "www.readnovel.com",
-                "www.tadu.com",
-                "www.xxsy.net",
-                "www.z3z4.com",
-                "www.zhihu.com",
-                "yuedu.163.com"
-            ]
-        };
+    // Hook addEventListener proc
+    function addEventListener(type, func, useCapture) {
+        var _addEventListener = this === document ? document_addEventListener : EventTarget_addEventListener;
+        if(hook_eventNames.indexOf(type) >= 0) {
+            _addEventListener.apply(this, [type, returnTrue, useCapture]);
+        } else if(unhook_eventNames.indexOf(type) >= 0) {
+            var funcsName = storageName + type + (useCapture ? 't' : 'f');
 
+            if(this[funcsName] === undefined) {
+                this[funcsName] = [];
+                _addEventListener.apply(this, [type, useCapture ? unhook_t : unhook_f, useCapture]);
+            }
 
-    var rule = null;
-    // 乱、乱、乱、
-    var rwl_userdata = GM_getValue("rwl_userdata");
-    if(!rwl_userdata){
-        var rwl_userdata = {
-            "version":"0.1",
-            "top":"0",
-            "left":"0",
-            "right":"auto"
+            this[funcsName].push(func);
+        } else {
+            _addEventListener.apply(this, arguments);
         }
-        GM_setValue("rwl_userdata",rwl_userdata);
     }
 
-    addBtn();   //页面左上角按钮，不想要按钮可以把这行注释掉
-    var black_node = document.getElementById("black_node");
+    // 清理循环
+    function clearLoop() {
+        rule = clear() // 对于动态生成的节点,随时检测
+        var elements = getElements();
 
-        // 拖动位置
-    if(black_node){
-            var rwl_node = document.querySelector("#rwl-iqxin");
-            rwl_node.addEventListener("mousedown",function(event){
-                rwl_node.style.transition = "null";
-                var disX = event.clientX - rwl_node.offsetLeft;
-                var disY = event.clientY - rwl_node.offsetTop;
+        for(var i in elements) {
+          for(var j in eventNames) {
+            var name = 'on' + eventNames[j];
 
-                var move = function(event){
-                    rwl_node.style.left = event.clientX - disX + "px" ;
-                    rwl_node.style.top  = event.clientY - disY + "px" ;
-                }
+            // ;?未解决
+                // 2018-04-02 elements中会有字符串出现,原版不会,问题不明,根本原因尚未解决
+                // 相关反馈  https://greasyfork.org/zh-CN/forum/discussion/36014
+                // 问题版本号  v3.0.7
+                // 问题补充   之前可以使用,具体版本未测（2018-04-02 21:27:53）,原版可以使用
+            if(Object.prototype.toString.call(elements[i])=="[object String]"){
+                continue;
+            }
 
-                document.addEventListener("mousemove",move);
-                document.addEventListener("mouseup",function(){
-                    rwl_node.style.transition = "0.3s";
-                    document.removeEventListener("mousemove",move);
-                    // 此函数内所有的注释语句都是有用的
-                        // 开启后，可拖动到屏幕右侧，但尚未添加css
-                        // 在上面添加 rwl-active-iqxin 的地方加上判断左右，在加上相应的css即可
-                        // 懒 2018-04-18 21:51:32
-                    // var bodyWidth = document.body.clientWidth;
-                    var rwl_nodeWidth = rwl_node.offsetLeft + rwl_node.offsetWidth/2;
-                    // if(rwl_nodeWidth > bodyWidth/2){
-                    //     rwl_node.style.left = "auto";
-                    //     rwl_node.style.right = 0;
-                    //     rwl_userdata.left = "auto";
-                    //     rwl_userdata.right = "0";
-                    // } else {
-                        rwl_node.style.right = rwl_userdata.right = "auto";
-                        rwl_node.style.left = rwl_userdata.left =  0;
-                    // }
-                    rwl_userdata.top = rwl_node.offsetTop;
-                    // console.log(rwl_userdata);
-                    GM_setValue("rwl_userdata",rwl_userdata);
+            if(elements[i][name] !== null && elements[i][name] !== onxxx) {
+                if(unhook_eventNames.indexOf(eventNames[j]) >= 0) {
+                    elements[i][storageName + name] = elements[i][name];
+                    elements[i][name] = onxxx;
+              } else {
+                    elements[i][name] = null;
+              }
+            }
+          }
+        }
+    }
 
-                })
+    // 返回true的函数
+    function returnTrue(e) {
+        return true;
+    }
+    function unhook_t(e) {
+        return unhook(e, this, storageName + e.type + 't');
+    }
+    function unhook_f(e) {
+        return unhook(e, this, storageName + e.type + 'f');
+    }
+    function unhook(e, self, funcsName) {
+        var list = self[funcsName];
+        for(var i in list) {
+            list[i](e);
+        }
+
+        e.returnValue = true;
+        return true;
+    }
+    function onxxx(e) {
+        var name = storageName + 'on' + e.type;
+        this[name](e);
+
+        e.returnValue = true;
+        return true;
+    }
+
+    // 获取所有元素 包括document
+    function getElements() {
+        var elements = Array.prototype.slice.call(document.getElementsByTagName('*'));
+        elements.push(document);
+        return elements;
+    };
+
+    // 获取黑名单网站 Func
+    function get_black_list(){
+        // 之前版本可能导致存储空的字符串
+            // 2018-06-11 15:11:44 保留,当容错处理
+        var data_temp = rwl_userData.data;
+        data_temp = data_temp.filter(function(item){
+                return item.length>1;
             })
-        }
-
-    var list = get_black_list();
-
-    var hostname = window.location.hostname;
-    if(check_black_list(list,hostname)){
-        // 如果注释掉按钮，此处会获取不到
-        if(black_node){
-            black_node.checked = true;
-        }
-        //console.log("位于黑名单中----------------revove_web_limits------iqxin");
-        init();
+        return data_temp;
     }
+    
+    // 检查是否存在于黑名单中 返回位置 func
+    function check_black_list(list,host){
+        for(let i=0;i<list.length;i++){
+            if(~hostname.indexOf(list[i])){
+                return i+1;  //万一匹配到第一个,返回0
+            }
+        }
+        return false;
+    }
+
+    // 鼠标点击后按钮后 检查是否在黑名单
+    function black_check(bool){
+        var check = check_black_list(list,hostname);
+
+        console.log(list)
+
+        if (bool && !check) {
+            console.log(list);
+            list = list.concat(hostname);
+            console.log("选中 不在黑名单, 增加",hostname,list);
+
+            console.log("before: ",rwl_userData.waitUpload)
+            rwl_userData.waitUpload.push(hostname); //准备上传
+            rwl_userData.currentURL = window.location.href;
+            console.log("after: ",rwl_userData.waitUpload)
+
+            saveData(list);
+            init();
+
+        }else if(!bool && check){
+            // console.log(check-1);
+            console.log("check: ",check)
+            list.splice(check-1,1);
+            console.log("未选中 在黑名单, 刪除",list);
+
+            saveData(list);
+
+            // 刷新页面
+            setTimeout(function(){
+                window.location.reload(true);
+                console.log("刷新页面loading");
+            },350);
+        }else{
+            console.log("返回false");
+            return false;
+        }
+    }
+
+    // 保存本地数据,并将数据上传至服务器
+    function saveData(lists){
+        console.log(lists);
+        lists = lists.filter(function(item){
+            return item.length>1;
+        })
+
+        // 更新数据
+        rwl_userData.data = lists.sort();
+
+        // 将本地黑名单上传
+        if (rwl_userData.waitUpload.length > 0 && rwl_userData.connectToTheServer){
+            // console.log("rwl : 上传...",rwl_userData.waitUpload);
+            // console.log("rwl : 开始上传-----");
+            GM_xmlhttpRequest({
+              method: "POST",
+              // url: "http://127.0.0.1:8000/tool/testajax/",
+              url: "http://eemm.me/tool/rwl_upload/",
+              data: JSON.stringify(rwl_userData),
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              onload: function(response) {
+                // console.log("rwl : 上传成功----");
+              }
+            });
+            rwl_userData.waitUpload = [];
+        }
+
+        GM_setValue("rwl_userData",rwl_userData);
+        // console.log(GM_getValue("rwl_userData"));
+        return rwl_userData;
+    }
+
+    // 数组去重
+    function unique(arr) {
+      var ret = []
+      for (var i = 0; i < arr.length; i++) {
+        var item = arr[i]
+        if (ret.indexOf(item) === -1) {
+          ret.push(item)
+        }
+      }
+      return ret;
+    }
+
+    // 复制到剪贴板
+    function setClipboard(){
+        var text_obj = window.getSelection();
+        var text = text_obj.toString();
+        GM_setClipboard(text);
+
+    }
+
+    // 部分网站采用了其他的防复制手段
+    function clear(){
+        // console.log("进入clear",hostname,rwl_userData.rules);
+        switch (hostname){
+            case "www.z3z4.com": clear_covers(".moviedownaddiv"); break;
+            case "huayu.baidu.com": clear_covers("#jqContextMenu"); break;
+            case "zhihu.com":
+            case "www.zhihu.com": return rwl_userData.rules.rule_zhihu; break;
+            case "t.bilibili.com": clear_link_bilibili(); break;
+            case "www.shangc.net": return rwl_userData.rules.rule_plus; break;
+        }
+        return rwl_userData.rules.rule_def;
+    }
+    // 去除覆盖层
+    function clear_covers(ele){
+        var odiv = document.querySelector(ele);
+        if(odiv){
+            odiv.parentNode.removeChild(odiv);
+        }
+    }
+    // b站将文字嵌套在链接中
+    function clear_link_bilibili(){
+        var odiv = document.querySelector(".description");
+        // console.log(odiv);
+        if(odiv){
+            var tDiv = odiv.querySelector(".content-ellipsis");
+            var aDiv = odiv.querySelector("a");
+             // console.log(tDiv);
+             // console.log(aDiv);
+             odiv.appendChild(tDiv);
+        }
+    }
+
+    // 3.x.x 过渡 4.x.x 版本
+    function version_up_3_to_4(){
+        var old_version = GM_getValue("black_list");
+        if(!old_version){return};
+        rwl_userData.data = unique(rwl_userData.data.concat(old_version.data));
+        GM_setValue("rwl_userData",rwl_userData);
+
+        GM_deleteValue("black_list");
+        GM_deleteValue("rwl_userdata");
+    }
+
 })();
