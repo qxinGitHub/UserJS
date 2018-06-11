@@ -7,7 +7,7 @@
 // @name:zh-CN        网页限制解除(改)
 // @name:ja           ウェブの規制緩和(変更)
 
-// @author            Cat73 & iqxin(修改)
+// @author            Cat73 & iqxin(修改) 
 // @contributor       iqxin
 
 // @description       通杀大部分网站,可以解除禁止复制、剪切、选择文本、右键菜单的限制。原作者cat73,因为和搜索跳转脚本冲突,遂进行了改动,改为黑名单制。
@@ -180,7 +180,9 @@
     // 检查是否在黑名单中
     if(check_black_list(list,hostname)){
         try {
-            btn_node.checked = true;
+            if(rwl_userData.addBtn){
+                btn_node.checked = true;
+            }
         } catch (e) {
             console.error("脚本rwl-错误：\n btn_node : %s\n%s\n脚本rwl-错误位置： btn_node.checked = true;",btn_node,e);
         } finally {
