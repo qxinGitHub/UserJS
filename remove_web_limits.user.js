@@ -23,7 +23,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           3.1.0
+// @version           3.2.3
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -32,7 +32,8 @@
 // @compatible        safari 未测试
 
 // @match             *://*/*
-// @exclude        *www.bilibili.com*
+// @exclude        *www.bilibili.com/video*
+// @exclude        *www.bilibili.com/bangumi*
 // @exclude        *www.panda.tv*
 
 // @connect     eemm.me
@@ -49,8 +50,8 @@
     var rules = {
         rule_plus: {
             name: "default",
-            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousedown|mouseup|mousemove|beforeunload",
-            unhook_eventNames: "keydown|keyup",
+            hook_eventNames: "contextmenu|select|selectstart|copy|cut|dragstart|mousemove|beforeunload",
+            unhook_eventNames: "mousedown|mouseup|keydown|keyup",
             dom0: true,
             hook_addEventListener: true,
             hook_preventDefault: true,
@@ -109,16 +110,17 @@
 
     // 清理循环
     function clearLoop() {
+        rule = clear() // 对于动态生成的节点，随时检测
         var elements = getElements();
 
         for(var i in elements) {
           for(var j in eventNames) {
             var name = 'on' + eventNames[j];
 
-            // ;?未解决 
+            // ;?未解决
                 // 2018-04-02 elements中会有字符串出现，原版不会，问题不明，根本原因尚未解决
                 // 相关反馈  https://greasyfork.org/zh-CN/forum/discussion/36014
-                // 问题版本号  v3.0.7 
+                // 问题版本号  v3.0.7
                 // 问题补充   之前可以使用，具体版本未测（2018-04-02 21:27:53），原版可以使用
             if(Object.prototype.toString.call(elements[i])=="[object String]"){
                 continue;
@@ -217,7 +219,7 @@
 
             saveData(list);
             init();
-            
+
         }else if(!bool && check){
             // console.log(check-1);
             list.splice(check-1,1);
@@ -347,8 +349,31 @@
         var node = document.createElement("remove-web-limits-iqxin");
         node.id = "rwl-iqxin";
         node.className = "rwl-exempt";
+
+        // 再次打开窗口小于之前窗口的情况
+        var screenClientHeight = document.documentElement.clientHeight;
+        var tempHeight;
+        if (rwl_userdata.top>screenClientHeight){
+                tempHeight  = screenClientHeight -40;
+        } else{
+            tempHeight = rwl_userdata.top;
+        }
+        // 改变窗口大小的情况
+        window.onresize=function(){  
+                var screenClientHeight = document.documentElement.clientHeight;
+                var tempHeight;
+                if (rwl_userdata.top>screenClientHeight){
+                        tempHeight  = screenClientHeight -40;
+                } else{
+                    tempHeight = rwl_userdata.top;
+                }
+                node.style.top =  tempHeight + "px";
+            }  
+
+        node.style.cssText = "top:"+tempHeight+"px;left:"+rwl_userdata.left+"px;right:"+rwl_userdata.right+"px;";
         // node.innerHTML = '<label><input type="checkbox" name="" id="black_node">黑名单</label><button id="delete">delete</btton>';
-        node.innerHTML = '<label>限制解除 <input type="checkbox" name="" id="black_node"></label>';
+        // node.innerHTML = '<label>限制解除 <input type="checkbox" name="" id="black_node"></label>';
+        node.innerHTML = '<lalala style="cursor:move;">限制解除</lalala> <input type="checkbox" name="" id="black_node" >';
         if(window.self === window.top){
             if (document.querySelector("body")){
                 document.body.appendChild(node);
@@ -369,12 +394,12 @@
         // document.getElementById("delete").addEventListener("click",function(){
         //  GM_deleteValue ("list_user");
         //  test();
-        // }); 
+        // });
         GM_addStyle(
             "#rwl-iqxin{" +
                 "position:fixed;" +
-                "top:0;" +
-                "left:0px;" +
+                // "top:0;" +
+                // "left:0px;" +
                 "transform:translate(-62px,0);" +
                 "width:58px;" +
                 "height:25px;" +
@@ -407,6 +432,7 @@
                 "position: static;" +
                 "clip: auto;" +
                 "opacity: 1;" +
+                "cursor: pointer;" +
             "}" +
             "#rwl-iqxin.rwl-active-iqxin{" +
                 // "top: 10px;" +
@@ -427,11 +453,13 @@
     // 部分网站采用了其他的防复制手段
     function clear(){
         // console.log(hostname);
+        console.log(hostname);
         switch (hostname){
             case "www.z3z4.com": clear_covers(".moviedownaddiv"); break;
             case "huayu.baidu.com": clear_covers("#jqContextMenu"); break;
             case "zhihu.com":
-            case "www.zhihu.com": return rules.rule_zhihu;
+            case "www.zhihu.com": return rules.rule_zhihu; break;
+            case "t.bilibili.com": clear_link_bilibili(); break;
             // case "www.w3schools.com":
             // case "www.ltaaa.com": rule.add_css = false; break;  //会导致整个页面变蓝
         }
@@ -442,6 +470,17 @@
         var odiv = document.querySelector(ele);
         if(odiv){
             odiv.parentNode.removeChild(odiv);
+        }
+    }
+    function clear_link_bilibili(){
+        var odiv = document.querySelector(".description");
+        // console.log(odiv);
+        if(odiv){
+            var tDiv = odiv.querySelector(".content-ellipsis");
+            var aDiv = odiv.querySelector("a");
+             // console.log(tDiv);
+             // console.log(aDiv);
+             odiv.appendChild(tDiv);
         }
     }
 
@@ -541,12 +580,66 @@
             ]
         };
 
+
+    var rule = null;
+    // 乱、乱、乱、
+    var rwl_userdata = GM_getValue("rwl_userdata");
+    if(!rwl_userdata){
+        var rwl_userdata = {
+            "version":"0.1",
+            "top":"0",
+            "left":"0",
+            "right":"auto"
+        }
+        GM_setValue("rwl_userdata",rwl_userdata);
+    }
+
     addBtn();   //页面左上角按钮，不想要按钮可以把这行注释掉
     var black_node = document.getElementById("black_node");
 
+        // 拖动位置
+    if(black_node){
+            var rwl_node = document.querySelector("#rwl-iqxin");
+            rwl_node.addEventListener("mousedown",function(event){
+                rwl_node.style.transition = "null";
+                var disX = event.clientX - rwl_node.offsetLeft;
+                var disY = event.clientY - rwl_node.offsetTop;
+
+                var move = function(event){
+                    rwl_node.style.left = event.clientX - disX + "px" ;
+                    rwl_node.style.top  = event.clientY - disY + "px" ;
+                }
+
+                document.addEventListener("mousemove",move);
+                document.addEventListener("mouseup",function(){
+                    rwl_node.style.transition = "0.3s";
+                    document.removeEventListener("mousemove",move);
+                    // 此函数内所有的注释语句都是有用的
+                        // 开启后，可拖动到屏幕右侧，但尚未添加css
+                        // 在上面添加 rwl-active-iqxin 的地方加上判断左右，在加上相应的css即可
+                        // 懒 2018-04-18 21:51:32
+                    // var bodyWidth = document.body.clientWidth;
+                    var rwl_nodeWidth = rwl_node.offsetLeft + rwl_node.offsetWidth/2;
+                    // if(rwl_nodeWidth > bodyWidth/2){
+                    //     rwl_node.style.left = "auto";
+                    //     rwl_node.style.right = 0;
+                    //     rwl_userdata.left = "auto";
+                    //     rwl_userdata.right = "0";
+                    // } else {
+                        rwl_node.style.right = rwl_userdata.right = "auto";
+                        rwl_node.style.left = rwl_userdata.left =  0;
+                    // }
+                    rwl_userdata.top = rwl_node.offsetTop;
+                    // console.log(rwl_userdata);
+                    GM_setValue("rwl_userdata",rwl_userdata);
+
+                })
+            })
+        }
+
     var list = get_black_list();
 
-    var hostname = window.location.hostname; 
+    var hostname = window.location.hostname;
     if(check_black_list(list,hostname)){
         // 如果注释掉按钮，此处会获取不到
         if(black_node){
