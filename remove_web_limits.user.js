@@ -23,7 +23,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           4.0.0
+// @version           4.1.0
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -224,8 +224,8 @@
         tempHeight = tempHeight<0?0:tempHeight
         node.style.cssText = "top:"+tempHeight+"px;left:"+rwl_userData.positionLeft+"px;right:"+rwl_userData.positionRight+"px;";
         // node.innerHTML = '<label><input type="checkbox" name="" id="black_node">黑名单</label><button id="delete">delete</btton>';
-        // node.innerHTML = '<label>限制解除 <input type="checkbox" name="" id="black_node"></label>';
-        node.innerHTML = '<lalala style="cursor:move;">限制解除</lalala> <input type="checkbox" name="" id="black_node" >';
+        // node.innerHTML = '<label>限制解除 <input type="checkbox"  name="" id="black_node"></label>';
+        node.innerHTML = '<button type="button" id="rwl-setbtn"> set </button> <lalala style="cursor:move;">限制解除</lalala> <input type="checkbox" name="" id="black_node" >';
         if(window.self === window.top){
             if (document.querySelector("body")){
                 document.body.appendChild(node);
@@ -253,7 +253,7 @@
                 // "top:0;" +
                 // "left:0px;" +
                 "transform:translate(-62px,0);" +
-                "width:58px;" +
+                "width:85px;" +
                 "height:25px;" +
                 "font-size:12px;" +
                 "font-weight: 500;" +
@@ -298,9 +298,96 @@
                 "margin:0;" +
                 "padding:0;" +
                 "font-weight:500;" +
+            "}" +
+            "#rwl-iqxin button{" +
+                "margin: 0;" +
+                "padding: 0 2px;" +
+                "border: none;" +
+                "border-radius: 2px;" +
+                "cursor: pointer;" +
+            "}" +
+            // 设置菜单
+            "#rwl-setMenu{" +
+                "text-align:left;" +
+            // "}" +
+            // "#rwl-setMenu p{" +
+            //     "margin:0;" +
             "}"
         )
     };
+
+
+    document.querySelector("#rwl-setbtn").addEventListener("click",function(){
+        var oldEditBox = document.querySelector("#rwl-setMenu");
+        if(oldEditBox){
+            oldEditBox.parentNode.removeChild(oldEditBox);
+            return;
+        }
+        var userSetting = GM_getValue("rwl_userData");
+        var upload_checked = userSetting.connectToTheServer?"checked":"";
+
+        var odom = document.createElement("div");
+        odom.id = "rwl-setMenu";
+        odom.style.cssText ="position: fixed;" +
+            "top: 50px;" +
+            "left: 20px;" +
+            "padding: 10px;" +
+            "background: #fff;" +
+            "border-radius: 4px;";
+        var innerH = "" +
+            "<p>距离顶部距离 <input id='positiontop' type='text' value=" + userSetting.positionTop + "></p>" + "" +
+            "<laberl> <p>允许上传黑名单<input id='uploadchecked'  type='checkbox' " + upload_checked + "></p>" + "</laberl>" +
+            "<p><s>显示按钮</s></p>" +
+            "<textarea wrap='off' cols='45' rows='20' style='overflow:auto;border-radius:4px;'>" + JSON.stringify(userSetting.data,false,4) + "</textarea>" + 
+            "<br>" +
+            // "<button id='rwl-reset'>清空设置</button> &nbsp;&nbsp;&nbsp;" +
+            "<button id='rwl-setMenuSave'>保存</button> &nbsp;&nbsp;&nbsp;" +
+            "<button id='rwl-setMenuClose' onclick='this.parentNode.parentNode.removeChild(this.parentNode);' >关闭</button> &nbsp;&nbsp;&nbsp;" +
+            // "<button id='rwl-codeboxsave'>保存</button>" +
+            "<span>--仅供查看--</span>"
+        "";
+        odom.innerHTML = innerH;
+        document.body.appendChild(odom);
+
+        document.querySelector("#rwl-setMenuSave").addEventListener("click",saveSetting);
+
+    })
+
+    // 保存选项
+    function saveSetting(){
+        var positionTop = document.querySelector("#rwl-setMenu #positiontop").value;
+        var uploadChecked = document.querySelector("#rwl-setMenu #uploadchecked").checked;
+        var codevalue = document.querySelector("#rwl-setMenu textarea").value;
+        // console.log(positionTop,uploadChecked);
+        if(codevalue){
+            console.log(JSON.parse(codevalue));
+            var userSetting = GM_getValue("rwl_userData");
+
+            userSetting.data = JSON.parse(codevalue);
+            userSetting.positionTop = parseInt(positionTop);
+            userSetting.connectToTheServer = uploadChecked;
+
+            GM_setValue("rwl_userData",userSetting);
+            // console.log(GM_getValue("searchEngineJumpData"));
+            // 刷新页面
+            setTimeout(function(){
+                window.location.reload();
+            },300);
+        } else {
+            alert("输入为空");
+            // this.reset();
+        }
+        closeMenu();
+    }
+
+    //关闭菜单
+    function closeMenu(){
+        var oldEditBox = document.querySelector("#rwl-setMenu");
+        if(oldEditBox){
+            oldEditBox.parentNode.removeChild(oldEditBox);
+            return;
+        }
+    }
 
     // 增加拖动事件 func
     function dragBtn(){
@@ -500,6 +587,7 @@
 
     // 鼠标点击后按钮后 检查是否在黑名单
     function black_check(bool){
+        var list = GM_getValue("rwl_userData").data
         var check = check_black_list(list,hostname);
 
         console.log(list)
@@ -633,5 +721,4 @@
         GM_deleteValue("black_list");
         GM_deleteValue("rwl_userdata");
     }
-
-})();
+})(); 
