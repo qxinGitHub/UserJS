@@ -23,7 +23,7 @@
 
 // @icon               data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABpElEQVR4nO3Vv2uUQRDG8c/ebSMWqay0trATAxrUSi1S2AiWFoJYpNCgoBjURsHWJKeNRfAvsDgFixQqKdPZ2ViEiCJYBOQu8f1hEXO59713j7MUfLZ6d2a/O8vMO0OzDnin9Ku2Mjvuaw07xgSAYEVXe2indMhj92zpKJLnBhF8MDeye9hn6zbN70eRiqCw02Bra3up8BBLu1FEBxsBucXqW4csz0ULe4jorSCMuPU89boRELDMHiI6Y8V65bbCUTccc70RkaOwKLOg0IkyXa9qTjOu2LAs6NZuD86hrdTyxRNTkUqqdhXlHrngGRVEZsMpJwex9DxIZSHYclesIb65LCoHgIs66UJq6btDBZHZrPh8V6YBOX66LbOkTGckBYimBW2FVTNeuOZNyrFJ236Yl4NSy5SbVm1PDvhodqgyMledTdRlAtDzqfL9tfkwUtyaRkv9LwFj9B/w7wPycXOhqlJ0yZHKPChMi5MCiM47XhsopbVJAUHfrYbmN/EToN+02eLPfz9OYyZhFJzW1Jn3lTsxaKQjCkp52jy45r1ZvSbTb9M0d4PBozGZAAAAAElFTkSuQmCC
 
-// @version           4.1.2
+// @version           4.1.3
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -222,7 +222,7 @@
         }
 
         tempHeight = tempHeight<0?0:tempHeight
-        node.style.cssText = "top:"+tempHeight+"px;left:"+rwl_userData.positionLeft+"px;right:"+rwl_userData.positionRight+"px;";
+        node.style.cssText = "position:fixed;top:"+tempHeight+"px;left:"+rwl_userData.positionLeft+"px;right:"+rwl_userData.positionRight+"px;";
         // node.innerHTML = '<label><input type="checkbox" name="" id="black_node">黑名单</label><button id="delete">delete</btton>';
         // node.innerHTML = '<label>限制解除 <input type="checkbox"  name="" id="black_node"></label>';
         node.innerHTML = '<button type="button" id="rwl-setbtn"> set </button> <lalala style="cursor:move;">限制解除</lalala> <input type="checkbox" name="" id="black_node" >';
@@ -247,8 +247,106 @@
         //  GM_deleteValue ("list_user");
         //  test();
         // });
-        GM_addStyle(
-            "#rwl-iqxin{" +
+        // GM_addStyle(
+        //     "#rwl-iqxin{" +
+        //         "position:fixed;" +
+        //         // "top:0;" +
+        //         // "left:0px;" +
+        //         "transform:translate(-90px,0);" +
+        //         "width:85px;" +
+        //         "height:25px;" +
+        //         "font-size:12px;" +
+        //         "font-weight: 500;" +
+        //         "font-family:Verdana, Arial, '宋体';" +
+        //         "color:#fff;" +
+        //         "background:#333;" +
+        //         "z-index:2147483647;" +
+        //         "margin: 0;" +
+        //         "opacity:0.05;" +
+        //         "transition:0.3s;" +
+        //         "overflow:hidden;" +
+        //         "user-select:none;" +
+        //         "text-align:center;" +
+        //         "white-space:nowrap;" +
+        //         "line-height:25px;" +
+        //         "padding:0 16px;" +
+        //         "border:1px solid #ccc;" +
+        //         "border-width:1px 1px 1px 0;" +
+        //         "border-bottom-right-radius:5px;" +
+        //         "box-sizing: content-box;" +
+        //     "}" +
+        //     "#rwl-iqxin input{" +
+        //         "margin: 0;" +
+        //         "padding: 0;" +
+        //         "vertical-align:middle;" +
+        //         "-webkit-appearance:checkbox;" +
+        //         "-moz-appearance:checkbox;" +
+        //         "position: static;" +
+        //         "clip: auto;" +
+        //         "opacity: 1;" +
+        //         "cursor: pointer;" +
+        //     "}" +
+        //     "#rwl-iqxin.rwl-active-iqxin{" +
+        //         // "top: 10px;" +
+        //         "left: 0px;" +
+        //         "transform:translate(0,0);" +
+        //         "opacity: 0.9;" +
+        //         "height: 32px;" +
+        //         "line-height: 32px" +
+        //     "}" +
+        //     "#rwl-iqxin label{" +
+        //         "margin:0;" +
+        //         "padding:0;" +
+        //         "font-weight:500;" +
+        //     "}" +
+        //     "#rwl-iqxin button{" +
+        //         "margin: 0;" +
+        //         "padding: 0 2px;" +
+        //         "border: none;" +
+        //         "border-radius: 2px;" +
+        //         "cursor: pointer;" +
+        //     "}" +
+        //     // 设置菜单
+        //     "#rwl-setMenu{" +
+        //         "text-align:left;" +
+        //         "font-size:14px;" +
+        //         "z-index:999999;" +
+        //     "}" +
+        //     "#rwl-setMenu p{" +
+        //         "margin:5px auto;" +
+        //     "}" +
+        //     // 广告
+        //     "#rwl-ad{" +
+        //         "height:100%;" +
+        //         "width:350px;" +
+        //         "position: absolute;" +
+        //         "top: 0;" +
+        //         "right: -100%;" +
+        //         "border-radius:4px;" +
+        //         "padding:2px;" +
+        //         "background:#fff;" +
+        //     "}" +
+        //     "#rwl-ad #xin-ad-pic{" +
+        //         "width:100%;" +
+        //     "}" +
+        //     "#rwl-ad #xin-ad-code{" +
+        //         "background: #fff;" +
+        //         "text-align: center;" +
+        //         "font-size: 1.2em;" +
+        //         "color: #F4C774;" +
+        //         "transition:0.5s;" +
+        //         "padding-bottom:10px;" +
+        //     "}" +
+        //     "#rwl-ad:hover #xin-ad-code{" +
+        //         "transform:translate(0,-50%);" +
+        //         "color:red" +
+        //     "}" +
+        //     " "
+        // )
+
+        var style = document.createElement("style");
+        style.type="text/css";
+        style.innerHTML =  "#rwl-iqxin{" +
                 "position:fixed;" +
                 // "top:0;" +
                 // "left:0px;" +
@@ -341,8 +439,8 @@
                 "transform:translate(0,-50%);" +
                 "color:red" +
             "}" +
-            " "
-        )
+            " ";
+            document.querySelector("#rwl-iqxin").appendChild(style);
     };
 
 
